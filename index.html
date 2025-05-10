@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Imperial+Script&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+      text-align: center;
+    }	
+    .imperial-script-regular, .link {
+      font-family: "Imperial Script", cursive;
+      font-weight: 400;
+      font-style: normal;
+    }
+    .box {
+      width: 500px;
+      height: 500px;
+      background-image: url("https://raw.githubusercontent.com/codedex-io/projects/main/projects/build-a-flappy-bird-clone-with-phaser/background_and_road.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-left: 5px solid black;
+      border-right: 5px solid black;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 100px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+    #score {
+      font-size: 30px;
+    }
+    .pipe {
+      width:200px;
+      position: absolute;
+    }
+    #bottom_pipe {
+      transform: rotate(180deg);
+    }
+    .bird {
+      width:100px;
+      height:100px;
+      position: absolute;
+    }
+
+    .hitbox {
+      position: absolute;
+      /* border: 2px dashed green; */
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class = "box">
+    <p id = "score">0</p>
+
+    <img src = "pipe.png" class = "pipe" id = "top_pipe"> 
+    <img src = "pipe.png" class = "pipe" id = "bottom_pipe">
+    <img src = "bird.png" class = "bird" id = "bird">
+
+    <div id = "bird_rect" class = "hitbox"></div>
+    <div id = "top_rect" class = "hitbox"></div>
+    <div id = "bottom_rect" class = "hitbox"></div>
+  </div>
+  
+  <button onclick = "start()">Start Game</button>
+
+  <script>
+    var bird = document.getElementById ("bird");
+    var top_pipe = document.getElementById ("top_pipe");
+    var bottom_pipe = document.getElementById ("bottom_pipe");
+
+    var x = 370;
+    var y = 200;
+    var velocity = 0;
+    var game_over = false;
+    var game_started = false;
+
+    var top_height;
+    var bottom_height;
+
+    bird.style.left = "50px";
+    
+    pipes ();
+    
+    function gravity(){
+      if (game_over) {
+        return;
+      }
+      
+      velocity += 0.1;
+      y += velocity;
+      bird.style.top = y + "px";
+
+      movepipe();
+      
+      requestAnimationFrame (gravity);
+    }
+
+    document.addEventListener ("keydown", function (event) {
+      if(event.code == "Space" && !game_over){
+        velocity = -4;
+      }
+    });
+
+    function start () {
+      if (!game_started) {
+        gravity ();
+        game_started = true;
+      }
+    }
+
+    function pipes () {
+      var number = Math.floor (Math.random () * (400 - 200 + 1)) + 200;
+      x = 420;
+      
+      top_pipe.style.height = number + "px";
+      top_pipe.style.top = "-70px";
+      top_pipe.style.left = x + "px";
+      
+      bottom_pipe.style.height = (600 - number) + "px";
+      bottom_pipe.style.bottom = "-70px";
+      bottom_pipe.style.left = x + "px";
+
+      top_height = number;
+      bottom_height = (600 - number);
+    }
+    
+    function movepipe () {
+      x -= 1.7;
+      top_pipe.style.left = x + "px";
+      bottom_pipe.style.left = x + "px";
+
+      var bird_rect = document.getElementById ("bird_rect");
+      var top_rect = document.getElementById ("top_rect");
+      var bottom_rect = document.getElementById ("bottom_rect");
+
+      bird_rect.style.left = "80px";
+      bird_rect.style.top = (y + 30) + "px";
+      bird_rect.style.width = "50px";
+      bird_rect.style.height = "40px";
+
+      top_rect.style.left = (x + 73) + "px";
+      top_rect.style.top = "-70px";
+      top_rect.style.width = "50px";
+      top_rect.style.height = (top_height - 54) + "px";
+
+      bottom_rect.style.left = (x + 73) + "px";
+      bottom_rect.style.bottom = "-70px";
+      bottom_rect.style.width = "50px";
+      bottom_rect.style.height = (bottom_height - 54) + "px";
+      
+      
+      if(collision (bird_rect, top_rect) == true || collision (bird_rect, bottom_rect) == true){
+        game_over = true;
+      }
+      if(x <= -150 ){
+        pipes();
+      }
+    }
+    
+    function collision (rect1, rect2) {
+      const r1 = rect1.getBoundingClientRect();
+      const r2 = rect2.getBoundingClientRect();
+
+      return !(
+        r1.top > r2.bottom ||
+        r1.bottom < r2.top ||
+        r1.right < r2.left ||
+        r1.left > r2.right
+      );
+    }
+    
+  </script>
+
+</body>
+</html>
